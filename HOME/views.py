@@ -45,14 +45,20 @@ def index(request):
     return render(request, 'index.html', context)
 
 def blog_detail(request, slug):
-    category = Category.objects.all()
     post = get_object_or_404(Blog, blog_slug=slug)
-    comments = Comment.objects.filter(blog_id=post.id).order_by('-date')
+    comments = Comment.objects.filter(post=post).order_by('-date')
+    categories = Category.objects.all()
+    popular_posts = Blog.objects.filter(section='Popular', status='1').order_by('-date')[:3]
+    
+    # Update view count
+    post.views += 1
+    post.save()
 
     context = {
-        'category': category,
         'post': post,
-        'comments': comments
+        'comments': comments,
+        'categories': categories,
+        'popular_posts': popular_posts,
     }
     return render(request, "blog_detail.html", context)
 
